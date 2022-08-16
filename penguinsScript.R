@@ -1,0 +1,164 @@
+---
+  title: "Penguins Analysis"
+author: "Rakha Hafish Setiawan"
+date: '2022-07-27'
+output:
+  html_document: default
+word_document: default
+---
+  
+  ```{r include=FALSE, echo=FALSE}
+library(tidyverse)
+library(skimr)
+library(validate)
+read.csv("penguins.csv")
+```
+
+```{r}
+penguins %>%
+  select(species, island) %>%
+  filter(island == "Torgersen")
+```
+
+```{r}
+str(penguins)
+```
+
+```{r}
+skim <- skim(penguins)
+
+```
+
+```{r}
+describe <- describe(penguins)
+```
+
+```{r}
+summary(penguins)
+```
+
+```{r}
+penguins %>%
+  ggplot(aes(species)) +
+  geom_bar(aes(color = species)) +
+  ggtitle("Recorded Specimen Count") +
+  labs(x = "Species",
+       y = "Species Count",
+       color = "Species") +
+  theme_classic()
+
+```
+```{r}
+penguins %>%
+  ggplot(aes(x = island, fill = species)) +
+  geom_bar(stat = "count") +
+  ggtitle("Recorded Species Distribution") +
+  labs(x = "",
+       y = "",
+       color = "Species") 
+
+```
+```{r}
+penguins %>%
+  ggplot(aes(bill_length_mm, bill_depth_mm)) +
+  geom_point(aes(color = species), size = 2.5) +
+  facet_wrap(~island) +
+  ggtitle("Bill Length and Depth Comparison") +
+  labs(x = "Bill Length (mm)",
+       y = "Bill Depth (mm)",
+       subtitle = "Comparison of Bill Length and Bill Depth of Each Recorded Specimen",
+       color = "Species") 
+
+
+```
+```{r}
+summary(lm(bill_length_mm~bill_depth_mm, data = penguins))
+```
+```{r}
+penguins %>%
+  ggplot(aes(x = bill_length_mm)) +
+  geom_histogram(aes(color = species),binwidth = 3) +
+  theme_light() +
+  labs(x = "Bill Length (mm)",
+       y = "Count",
+       color = "Species") +
+  facet_wrap(~species)
+
+```
+```{r}
+penguins %>%
+  ggplot(aes(x = bill_depth_mm)) +
+  geom_histogram(aes(color = species),binwidth = 2) +
+  theme_light() +
+  labs(x = "Bill Depth (mm)",
+       y = "Count",
+       color = "Species") +
+  facet_wrap(~species)
+
+```
+```{r}
+penguins %>%
+  select(species, body_mass_g) %>%
+  mutate(Body_Mass_Category  = ifelse(body_mass_g >= 5000, "High",
+                                      ifelse(body_mass_g >= 4000, "Medium", "Low"))) %>%
+  arrange(body_mass_g) 
+```
+```{r}
+penguins %>%
+  ggplot(aes(species)) +
+  geom_bar() +
+  ggtitle("Observed Specimen Count") +
+  labs( y = "",
+        x = "Species")
+```
+```{r}
+penguins %>%
+  group_by(species) %>%
+  summarise(Count = n())
+```
+```{r}
+penguins %>%
+  group_by(species)%>%
+  summarise(Average = mean(bill_length_mm)) %>%
+  ggplot(aes(species, Average)) +
+  geom_col(fill = "#5D3FD3") +
+  ggtitle("Average Bill Length") +
+  labs(x = "Species", 
+       y = "Average",
+       subtitle = "Of Each Observed Species") +
+  theme_gray()
+
+```
+```{r}
+penguins %>%
+  filter(species == "Adelie") %>%
+  group_by(sex) %>%
+  summarise(Avg = mean(body_mass_g))
+
+```
+
+```{r}
+penguins %>%
+  filter(species == "Chinstrap") %>%
+  group_by(sex) %>%
+  summarise(Avg = mean(body_mass_g))
+```
+```{r}
+penguins %>%
+  ggplot(aes(x = species, y = bill_depth_mm, fill = sex)) +
+  geom_bar(position="stack", stat="identity")
+```
+```{r}
+pTest <- validator( is_complete(species),
+                    bill_length_mm > 10.5,
+                    !is.na(islands))
+
+```
+
+```{r}
+barplot(confront(penguins, pTest))
+```
+
+
+
+
